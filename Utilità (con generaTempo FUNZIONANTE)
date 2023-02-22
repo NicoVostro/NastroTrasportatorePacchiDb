@@ -1,0 +1,74 @@
+package it.urania.software;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+public class Utilità {
+    private ArrayList<Orario> orari = new ArrayList(1500);
+
+    public Utilità() {
+        orari.add(new Orario(8, 0, 0));
+    }
+
+    private int pesoGenerato(){
+        int rangeMin = 1;
+        int rangeMax = 50_000;
+        Random rnd = new Random();
+        int x = rnd.nextInt(rangeMax);
+        int pesoRandom = (int) (Math.random() * rangeMax + rangeMin);
+        if(pesoRandom < 1_000){
+            pesoRandom = 1_000;
+        }
+        if(pesoRandom > 10_000){
+            try{
+                throw new pesoEccessivo("Segnalato pacco con peso eccessivo.");
+            } catch(pesoEccessivo e){
+                pesoEccessivo.pacchiSegnalati();
+            }
+        }
+        return pesoRandom;
+    }
+
+    public String generaTempo(){
+        String tempo = "";
+        int hh = 8;
+        int mm = 0;
+        int ss = 0;
+        boolean flag = true;
+        int dim = orari.size();
+        while(flag){
+            hh = (int) (Math.random() * 16 + 8);
+            mm = (int) (Math.random() * 60);
+            ss = (int) (Math.random() * 60);
+            for(int i=dim-1; i<dim; i++){
+                if(hh>orari.get(i).getOre()){
+                    flag = false;
+                }else{
+                    if(hh==orari.get(i).getOre()){
+                        if(mm>orari.get(i).getMinuti()){
+                            flag = false;
+                        }else{
+                            if(mm==orari.get(i).getMinuti()){
+                                if(ss>orari.get(i).getSecondi()){
+                                    flag = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(!flag){
+            tempo = hh + ":" + mm +":" + ss;
+            orari.add(new Orario(hh, mm, ss));
+        }
+        return tempo;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Orari=" + orari +
+                '}';
+    }
+}
