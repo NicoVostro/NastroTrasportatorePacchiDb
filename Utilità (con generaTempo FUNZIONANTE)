@@ -68,7 +68,6 @@ public class Utilità {
 
     @Override
     public String toString() {
-        return "Orari=" + orari +
-                '}';
+        return "Orari=" + orari;
     }
 }
