@@ -70,7 +70,7 @@ public class NastroTrasportatore {
     }
 
     public void pacchiSup5kg(Connection conn, String tab1){
-        String sql = "SELECT COUNT(*) FROM " + tab1 + " WHERE peso > 5;";
+        String sql = "SELECT COUNT(*) FROM " + tab1 + " WHERE peso > 5000;";
         Statement St;
         ResultSet RsSt;
         try{
