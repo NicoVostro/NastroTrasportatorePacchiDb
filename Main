@@ -1,0 +1,8 @@
+package it.urania.software;
+
+public class Main {
+    public static void main(String[] args) {
+        NastroTrasportatore NsTr = new NastroTrasportatore();
+        NsTr.start();
+    }
+}
