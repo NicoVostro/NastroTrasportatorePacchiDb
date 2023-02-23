@@ -1,0 +1,81 @@
+package it.urania.software;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Properties;
+import java.util.Scanner;
+
+public class gestioneDB {
+    Connection conn = null;
+    PreparedStatement PrSt = null;
+    public String us(){
+        Scanner scU = new Scanner(System.in);
+        System.out.println("Digitare username.");
+        String us = scU.nextLine();
+        return us;
+    }
+    public String pw(){
+        String pw = "";
+        Scanner scP = new Scanner(System.in);
+        System.out.println("Digitare Y se si usa una password, N se non si usa una password.");
+        char scelta = scP.nextLine().charAt(0);
+        switch(scelta){
+            case('Y'):
+            System.out.println("Digitare la password.");
+            pw = scP.nextLine();
+            break;
+            case('N'):
+                break;
+            default:
+                System.out.println("Scelta non valida. Accesso negato!");
+        }
+        return pw;
+    }
+
+    public String tb(){
+        Scanner scTab = new Scanner(System.in);
+        System.out.println("Digitare il nome completo della tabella di riferimento.");
+        String tabella = scTab.nextLine();
+        return tabella;
+    }
+    public Connection getConnection(String user, String password){
+        try{
+            FileReader Flrd = new FileReader ("config.properties");
+            Properties prop = new Properties();
+            prop.load(Flrd);
+            String url = prop.getProperty("url") + "//" + prop.getProperty("host") + prop.getProperty("porta") +
+                    "/" + prop.getProperty("database");
+            conn = DriverManager.getConnection(url, user, password);
+        }catch(FileNotFoundException e1){
+            System.out.println("File assente. " + e1.getMessage());
+        }catch(IOException e2){
+            System.out.println("Errore input-output. " + e2.getMessage());
+        }catch(SQLException e3){
+            System.out.println("Impossibile connettersi a database. " + e3.getMessage());
+        }
+        if(conn!=null){
+            System.out.println("Connessione al database eseguita.");
+        }
+        return conn;
+    }
+
+    public boolean scrivi(String tempo, int peso, String codice, String tabella){
+        String sql = "INSERT INTO "+ tabella + " (tempo, peso, codice) VALUES (?, ?, ?)";
+        boolean esito = false;
+        try{
+            PrSt = conn.prepareStatement(sql);
+            PrSt.setString(1, tempo);
+            PrSt.setInt(2, peso);
+            PrSt.setString(3, codice);
+            esito = PrSt.execute();
+        }catch(SQLException e1){
+            System.out.println("Impossibile utilizzare lo Statement. " + e1.getMessage());
+        }
+        return esito;
+    }
+}
