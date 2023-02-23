@@ -49,15 +49,17 @@ public class NastroTrasportatore {
             }
             int contapacco = 1;
             for(int i=0; i<pacchiOrari.size()-1; i++){
-                if((i+1) == pacchiOrari.size()){
-                    break;
-                }
                 int posA = Integer.parseInt(pacchiOrari.get(i).substring(0,2));
                 int posB = Integer.parseInt(pacchiOrari.get(i+1).substring(0,2));
                 if(posA - posB == 0){
                     contapacco++;
+                    if((i+2) == pacchiOrari.size()){
+                        analiticoOra.put(posA, contapacco);
+                    }
+                }else{
+                    analiticoOra.put(posA, contapacco);
+                    contapacco = 1;
                 }
-                analiticoOra.put(posA, contapacco);
             }
         }catch(SQLException e1){
             System.out.println("Errore Statement. " + e1.getMessage());
