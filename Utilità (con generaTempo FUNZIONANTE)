@@ -1,16 +1,23 @@
 package it.urania.software;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Random;
 
 public class Utilità {
     private ArrayList<Orario> orari = new ArrayList(1500);
+    private ArrayList<String> codici = new ArrayList(1500);
 
     public Utilità() {
         orari.add(new Orario(8, 0, 0));
     }
 
-    private int pesoGenerato(){
+    public int pesoGenerato(){
         int rangeMin = 1;
         int rangeMax = 50_000;
         Random rnd = new Random();
@@ -26,43 +33,85 @@ public class Utilità {
                 pesoEccessivo.pacchiSegnalati();
             }
         }
+        System.out.println("Peso rilevato.");
         return pesoRandom;
     }
 
-    public String generaTempo(){
+    public String generaTempo(int iter){
         String tempo = "";
-        int hh = 8;
-        int mm = 0;
-        int ss = 0;
         boolean flag = true;
-        int dim = orari.size();
+        LocalTime LT = LocalTime.now();
+        int hh = LT.getHour();
+        int mm = LT.getMinute();
+        Random rnd = new Random();
+        /* scarto temporale standard di 35 secondi */
+        /* perdita di tempo casuale di 10 secondi massimo */
+        int ss = LT.getMinute() + 35*iter + rnd.nextInt(10);
+        int quozSec = ss / 60;
+        int quozMinu = mm / 60;
+        if(quozSec != 0){
+            ss = ss - (60 * quozSec);
+            mm = mm + quozSec;
+        }
+        if(quozMinu != 0){
+            mm -= (60 * quozMinu);
+            hh = hh + quozMinu;
+        }
         while(flag){
-            hh = (int) (Math.random() * 16 + 8);
-            mm = (int) (Math.random() * 60);
-            ss = (int) (Math.random() * 60);
-            for(int i=dim-1; i<dim; i++){
-                if(hh>orari.get(i).getOre()){
-                    flag = false;
-                }else{
-                    if(hh==orari.get(i).getOre()){
-                        if(mm>orari.get(i).getMinuti()){
-                            flag = false;
-                        }else{
-                            if(mm==orari.get(i).getMinuti()){
-                                if(ss>orari.get(i).getSecondi()){
-                                    flag = false;
-                                }
-                            }
-                        }
-                    }
-                }
+            if(hh>8 && hh<24) {
+                tempo = hh + ":" + mm + ":" + ss;
+                System.out.println("Tempo registrato.");
+                flag = false;
+            }else{
+                System.out.println("Fuori orario di lavoro.");
             }
         }
-        if(!flag){
-            tempo = hh + ":" + mm +":" + ss;
-            orari.add(new Orario(hh, mm, ss));
-        }
         return tempo;
+    }
+
+    public String codicePacco(Connection conn, String tabella){
+        String codice = "";
+        Random rnd = new Random();
+        String alfabeto = "abcdefghijklmnopqrstuvwxyz";
+        for(int i=0; i<2; i++){
+            int parteA = rnd.nextInt(26);
+            codice += alfabeto.charAt(parteA);
+        }
+        codice += "-";
+        int contZero = 0;
+        for(int i=0; i<4; i++){
+            int parteB = rnd.nextInt(10);
+            if(parteB==0){
+                contZero++;
+            }
+            codice += parteB;
+        }
+        if(contZero==0){
+            codice += (1 + rnd.nextInt(9));
+        }else{
+            codice += rnd.nextInt(10);
+        }
+        System.out.println("Codice generato.\n--------------------");
+        String sql = "SELECT * FROM " + tabella + " ;";
+        Statement St = null;
+        ResultSet RsSt;
+        try{
+            St = conn.createStatement();
+            RsSt = St.executeQuery(sql);
+            while(RsSt.next()){
+                codici.add(RsSt.getString(4));
+            }
+            for(int i =0; i<codici.size(); i++){
+                boolean isPresente = false;
+                isPresente = codice.equalsIgnoreCase(codici.get(i));
+                if(isPresente){
+                    codici.add(codice);
+                }
+            }
+        }catch(SQLException e1){
+            System.out.println("Impossibile lavorare con database. " + e1.getMessage());
+        }
+        return codice.toUpperCase(Locale.ROOT);
     }
 
 
