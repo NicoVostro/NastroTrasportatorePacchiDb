@@ -1,0 +1,31 @@
+package it.urania.software;
+
+public class Orario{
+    private int ore;
+    private int minuti;
+    private int secondi;
+    public Orario(int ore, int minuti, int secondi) {
+        this.ore = ore;
+        this.minuti = minuti;
+        this.secondi = secondi;
+    }
+
+    public int getOre() {
+        return ore;
+    }
+    public int getMinuti() {
+        return minuti;
+    }
+    public int getSecondi() {
+        return secondi;
+    }
+
+    @Override
+    public String toString() {
+        return "Orario{" +
+                "ore=" + ore +
+                ", minuti=" + minuti +
+                ", secondi=" + secondi +
+                '}';
+    }
+}
