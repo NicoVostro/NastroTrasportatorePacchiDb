@@ -1,0 +1,86 @@
+package it.urania.software;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
+import java.util.Set;
+
+public class NastroTrasportatore {
+    gestioneDB gdb = new gestioneDB();
+    Connection conn = null;
+    Utilità Util = new Utilità();
+    final String codice = "";
+    final String tempo = "08:00:00";
+    final int peso = 0;
+
+    public void start(){
+        conn = gdb.getConnection(gdb.us(), gdb.pw());
+        String tab1 = gdb.tb();
+        Scanner scIter = new Scanner(System.in);
+        System.out.println("Inserire il numero di passaggi del turno, minimo 1, massimo 2000.");
+        int numIter = scIter.nextInt();
+        if(numIter >=1 && numIter <= 2000){
+            for(int i=0; i<numIter; i++){
+                gdb.scrivi(Util.generaTempo(i), Util.pesoGenerato(), Util.codicePacco(conn, tab1), tab1);
+            }
+        }else{
+            System.out.println("Numero di passaggi su nastro non valido.");
+        }
+        contaPacchi(conn, tab1);
+        pacchiSup5kg(conn, tab1);
+    }
+
+    public void contaPacchi(Connection conn, String tab1){
+
+        ArrayList<String> pacchiOrari = new ArrayList(50);
+        HashMap<Integer, Integer> analiticoOra = new HashMap(50);
+        String sql = "SELECT * FROM " + tab1 + " ORDER BY tempo";
+        Statement St = null;
+        ResultSet RsSt;
+        try{
+            St = conn.createStatement();
+            RsSt = St.executeQuery(sql);
+            while(RsSt.next()){
+                pacchiOrari.add(RsSt.getString(2));
+            }
+            int contapacco = 1;
+            for(int i=0; i<pacchiOrari.size()-1; i++){
+                if((i+1) == pacchiOrari.size()){
+                    break;
+                }
+                int posA = Integer.parseInt(pacchiOrari.get(i).substring(0,2));
+                int posB = Integer.parseInt(pacchiOrari.get(i+1).substring(0,2));
+                if(posA - posB == 0){
+                    contapacco++;
+                }
+                analiticoOra.put(posA, contapacco);
+            }
+        }catch(SQLException e1){
+            System.out.println("Errore Statement. " + e1.getMessage());
+        }
+        System.out.println("Report numero pacchi per ore.");
+        Set<Integer> ks = analiticoOra.keySet();
+        for(Integer numPac : ks){
+            System.out.println("Fascia oraria ore " + numPac + ", pacchi transitati: " + analiticoOra.get(numPac) + ".");
+        }
+    }
+
+    public void pacchiSup5kg(Connection conn, String tab1){
+        String sql = "SELECT COUNT(*) FROM " + tab1 + " WHERE peso > 5;";
+        Statement St;
+        ResultSet RsSt;
+        try{
+            St = conn.createStatement();
+            RsSt = St.executeQuery(sql);
+            while(RsSt.next()){
+                System.out.println("Pacchi transitati su nastro con peso superiore ai 5 kg: " + RsSt.getInt(1) + ".");
+            }
+        }catch(SQLException e1){
+            System.out.println("Errore Statement. " + e1.getMessage());
+        }
+    }
+}
