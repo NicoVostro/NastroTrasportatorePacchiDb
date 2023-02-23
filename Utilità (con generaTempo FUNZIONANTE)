@@ -56,15 +56,13 @@ public class Utilità {
         if(quozMinu != 0){
             mm -= (60 * quozMinu);
             hh = hh + quozMinu;
-        }
-        while(flag){
-            if(hh>8 && hh<24) {
-                tempo = hh + ":" + mm + ":" + ss;
-                System.out.println("Tempo registrato.");
-                flag = false;
-            }else{
-                System.out.println("Fuori orario di lavoro.");
-            }
+        }     
+        if(hh>8 && hh<24) {
+            tempo = hh + ":" + mm + ":" + ss;
+            System.out.println("Tempo registrato.");
+            flag = false;
+        }else{
+            System.out.println("Fuori orario di lavoro.");
         }
         return tempo;
     }
