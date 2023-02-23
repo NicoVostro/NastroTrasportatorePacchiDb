@@ -1,0 +1,11 @@
+package it.urania.software;
+
+public class pesoEccessivo extends Throwable {
+    static int contaPacchiSegnalati = 0;
+    public pesoEccessivo(String segnalatoPaccoConPesoEccessivo) {
+
+    }
+    public static void pacchiSegnalati(){
+        contaPacchiSegnalati++;
+    }
+}
